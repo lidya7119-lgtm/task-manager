@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const sqlite3 = require('sqlite3').verbose(); // Import sqlite3 and enable verbose mode for logging
+const sqlite3 = require('sqlite3').verbose();
 const app = express();
 const PORT = 3000;
 const DB_FILE = './tasks.db'; // Define the name of our SQLite database file
@@ -28,16 +28,17 @@ const db = new sqlite3.Database(DB_FILE, (err) => {
             } else {
                 console.log('Tasks table ensured.');
                 // Optional: Insert some initial data if the table was just created and is empty
-                // You might want to remove this for production, or have a more robust seeding mechanism
+                // IMPORTANT: This logic only runs if the table is truly empty.
+                // If you already have data from a previous run, these won't be inserted again.
                 db.get("SELECT COUNT(*) as count FROM tasks", (err, row) => {
                     if (err) {
                         console.error('Error checking task count:', err.message);
                     } else if (row.count === 0) {
                         console.log('Tasks table is empty, inserting initial data.');
                         const stmt = db.prepare("INSERT INTO tasks (id, text, completed, priority) VALUES (?, ?, ?, ?)");
-                        stmt.run('1', 'Learn SQL for persistence', false, 'high');
-                        stmt.run('2', 'Connect Express to SQLite', true, 'medium');
-                        stmt.run('3', 'Refactor backend endpoints', false, 'low');
+                        stmt.run('1678886400000', 'Learn SQL for persistence', 0, 'high'); // Use string ID
+                        stmt.run('1678886400001', 'Connect Express to SQLite', 1, 'medium');
+                        stmt.run('1678886400002', 'Refactor backend endpoints', 0, 'low');
                         stmt.finalize();
                         console.log('Initial data inserted.');
                     }
@@ -47,43 +48,58 @@ const db = new sqlite3.Database(DB_FILE, (err) => {
     }
 });
 
-// --- !!! IMPORTANT !!! ---
-// For this atomic step, we are temporarily keeping the in-memory 'tasks' array
-// and the existing endpoint logic as-is. We will refactor them to use the DB
-// in the *next* step.
-let tasks = [ // This will be removed or commented out in the next step
-    { id: '1', text: 'Learn Node.js for backend', completed: false, priority: 'high' },
-    { id: '2', text: 'Set up Express server', completed: true, priority: 'medium' },
-    { id: '3', text: 'Build a tasks API', completed: false, priority: 'low' }
-];
+// --- REMOVED: In-memory 'tasks' array is no longer needed ---
+// let tasks = [...]
 
-// --- API Endpoints (Still using in-memory 'tasks' for this step) ---
+// --- API Endpoints (NOW USING THE DATABASE) ---
 
-// GET all tasks (still using in-memory for this specific step)
+// GET all tasks
 app.get('/tasks', (req, res) => {
-    console.log('GET /tasks request received (in-memory)');
-    res.json(tasks); // Send the in-memory tasks array as JSON
+    console.log('GET /tasks request received (from DB)');
+    db.all("SELECT * FROM tasks", [], (err, rows) => { // db.all fetches all matching rows
+        if (err) {
+            console.error('Error fetching tasks:', err.message);
+            res.status(500).json({ error: 'Failed to fetch tasks.' });
+            return;
+        }
+        // SQLite stores BOOLEAN as 0/1. Convert to true/false for consistency with frontend.
+        const tasksWithBooleans = rows.map(task => ({
+            ...task,
+            completed: task.completed === 1 // Convert 1 to true, 0 to false
+        }));
+        res.json(tasksWithBooleans);
+    });
 });
 
-// POST a new task (still using in-memory for this specific step)
+// POST a new task
 app.post('/tasks', (req, res) => {
-    console.log('POST /tasks request received with body (in-memory):', req.body);
+    console.log('POST /tasks request received with body (to DB):', req.body);
     const { text, completed, priority } = req.body;
 
     if (!text) {
         return res.status(400).json({ error: 'Task text is required.' });
     }
 
-    const newTask = {
-        id: Date.now().toString(),
-        text,
-        completed: completed !== undefined ? completed : false,
-        priority: priority || 'medium'
-    };
+    const newId = Date.now().toString(); // Generate unique ID for the new task
+    const isCompleted = completed ? 1 : 0; // Convert boolean to 0 or 1 for SQLite
+    const taskPriority = priority || 'medium';
 
-    tasks.push(newTask);
-    console.log('New task added (in-memory):', newTask);
-    res.status(201).json(newTask);
+    const sql = `INSERT INTO tasks (id, text, completed, priority) VALUES (?, ?, ?, ?)`;
+    db.run(sql, [newId, text, isCompleted, taskPriority], function (err) { // db.run executes a query, 'this' refers to statement info
+        if (err) {
+            console.error('Error inserting new task:', err.message);
+            res.status(500).json({ error: 'Failed to create task.' });
+            return;
+        }
+        console.log(`A row has been inserted with ID: ${newId}`);
+        // Respond with the newly created task object (including its ID)
+        res.status(201).json({
+            id: newId,
+            text,
+            completed: completed !== undefined ? completed : false, // Send back original boolean
+            priority: taskPriority
+        });
+    });
 });
 
 
