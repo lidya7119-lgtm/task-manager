@@ -4,31 +4,41 @@ const taskTextInput = document.getElementById('task-text');
 const tasksContainer = document.getElementById('tasks-container');
 const currentYearSpan = document.getElementById('current-year');
 
-// --- Global Array to store task objects ---
-let tasks = [];
+// --- Global Array to store task objects (now kept in sync with backend) ---
+let tasks = []; // This array will now be populated by the backend
+
+// Backend API URL
+const API_URL = 'http://localhost:3000/tasks'; // Point to your backend server
 
 // Set current year in footer
 if (currentYearSpan) {
     currentYearSpan.textContent = new Date().getFullYear();
 }
 
-/**
- * Saves the current tasks array to localStorage.
- */
+// NOTE: saveTasks() is now effectively replaced by direct API calls within addTask, etc.
+// This function can be removed or repurposed if specific "save all" logic is needed later.
+// For now, it's a placeholder.
 function saveTasks() {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-    console.log('Tasks saved:', tasks); // For debugging
+    console.warn("saveTasks() is a placeholder; direct API calls are used for persistence.");
 }
 
+
 /**
- * Loads tasks from localStorage and renders them.
+ * Loads tasks from the backend API and renders them.
  */
-function loadTasks() {
-    const storedTasks = localStorage.getItem('tasks');
-    if (storedTasks) {
-        tasks = JSON.parse(storedTasks);
-        console.log('Tasks loaded:', tasks); // For debugging
+async function loadTasks() {
+    try {
+        const response = await fetch(API_URL); // Make a GET request to your backend
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const backendTasks = await response.json(); // Parse the JSON response
+        tasks = backendTasks; // Update the local tasks array with data from the backend
+        console.log('Tasks loaded from backend:', tasks); // For debugging
         renderTasks(); // Render all loaded tasks
+    } catch (error) {
+        console.error('Failed to fetch tasks:', error);
+        tasksContainer.innerHTML = `<p style="color: #dc3545;">Failed to load tasks. Please check server connection.</p>`;
     }
 }
 
@@ -38,6 +48,9 @@ function loadTasks() {
  */
 function renderTasks() {
     tasksContainer.innerHTML = ''; // Clear existing tasks in the DOM
+    // Sort tasks to display new ones at the top, or by priority later
+    tasks.sort((a, b) => new Date(b.id) - new Date(a.id)); // Simple sort by ID (timestamp) for new-on-top
+
     tasks.forEach(task => {
         const taskElement = createTaskElement(task);
         tasksContainer.appendChild(taskElement); // Append to maintain order
@@ -78,38 +91,62 @@ function createTaskElement(task) {
 }
 
 /**
- * Adds a new task. Updates the `tasks` array, saves to localStorage, and re-renders.
+ * Adds a new task by sending it to the backend API.
  * @param {string} taskText - The description of the new task.
  */
-function addTask(taskText) {
+async function addTask(taskText) {
     if (taskText.trim() === '') {
         alert('Task description cannot be empty!');
         return;
     }
 
-    const newTask = {
-        id: Date.now().toString(), // Simple unique ID for now
+    const newTaskData = {
         text: taskText,
         completed: false,
         priority: 'medium' // Default priority for now, will be updated later
     };
 
-    tasks.unshift(newTask); // Add new task to the beginning of the array
-    saveTasks(); // Save updated tasks array
-    renderTasks(); // Re-render all tasks to display the new one
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST', // Specify the HTTP method
+            headers: {
+                'Content-Type': 'application/json' // Tell the server we're sending JSON
+            },
+            body: JSON.stringify(newTaskData) // Convert the JS object to a JSON string
+        });
 
-    taskTextInput.value = ''; // Clear the input field
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.error || response.statusText}`);
+        }
+
+        const createdTask = await response.json(); // Get the newly created task object from the server
+        console.log('Task added via backend:', createdTask);
+
+        // Add the server-created task to our local array
+        tasks.push(createdTask); // Or unshift if you want new tasks at the top, then re-sort if needed.
+        // For simplicity, we'll just reload all tasks from the backend after adding.
+        // A more optimized approach would be to just add `createdTask` to the `tasks` array
+        // and then call `renderTasks()`. For now, let's keep it simple with a reload.
+        loadTasks(); // Reload tasks to ensure consistent state and order
+
+        taskTextInput.value = ''; // Clear the input field
+    } catch (error) {
+        console.error('Failed to add task:', error);
+        alert(`Error adding task: ${error.message}`);
+    }
 }
 
 /**
- * Deletes a task from the `tasks` array and updates the display.
+ * Deletes a task by sending a request to the backend API.
  * @param {string} taskId - The ID of the task to delete.
  */
-function deleteTask(taskId) {
-    // Filter out the task with the matching ID
+async function deleteTask(taskId) {
+    // This function will be updated to use backend API for deletion in a future step
+    console.warn(`deleteTask(${taskId}) currently does not call backend. Implement DELETE endpoint.`);
+    // For now, it will only remove from local array and re-render
     tasks = tasks.filter(task => task.id !== taskId);
-    saveTasks(); // Save the updated array to localStorage
-    renderTasks(); // Re-render the tasks to update the DOM
+    renderTasks();
 }
 
 
@@ -131,7 +168,7 @@ tasksContainer.addEventListener('click', (event) => {
     // Handle Delete button click
     if (target.classList.contains('delete-btn')) {
         if (confirm('Are you sure you want to delete this task?')) {
-            deleteTask(taskId);
+            deleteTask(taskId); // Calls the frontend deleteTask, will update to backend DELETE later
         }
     }
 
