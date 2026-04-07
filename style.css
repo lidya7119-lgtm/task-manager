@@ -1,4 +1,154 @@
-h1 {
-    color:blue;
-    background-color: pink;
+/* --- CSS Variables (Purple Pattern & Dark/Clear Theme) --- */
+:root {
+    /* Purple Palette */
+    --purple-primary: #8A2BE2; /* Blue Violet */
+    --purple-light: #C38EFF;
+    --purple-dark: #6A1AAB;
+    --purple-accent: #DDA0DD; /* Plum or Thistle for highlights */
+
+    /* Generic Colors for Theming (Light Theme Defaults) */
+    --bg-color: #f4f4f9;
+    --text-color: #333;
+    --card-bg: #fff;
+    --border-color: #ddd;
+    --input-bg: #fff;
+    --input-border: #ccc;
+    --button-bg: var(--purple-primary);
+    --button-text: #fff;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+
+    /* Spacing */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 3rem;
+}
+
+/* Dark Theme specific variables (will be activated by JS toggling body.dark-theme) */
+body.dark-theme {
+    --bg-color: #282c34;
+    --text-color: #e0e0e0;
+    --card-bg: #3c4048;
+    --border-color: #555;
+    --input-bg: #444;
+    --input-border: #666;
+    --button-bg: var(--purple-light);
+    --button-text: #282c34;
+    --shadow-color: rgba(0, 0, 0, 0.4);
+}
+
+/* --- Base Styles (Mobile-First) --- */
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth theme transition */
+}
+
+.container {
+    max-width: 100%; /* Default for mobile */
+    margin: 0 auto;
+    padding: var(--spacing-sm); /* Initial padding for mobile */
+}
+
+header {
+    background-color: var(--purple-dark);
+    color: var(--button-text);
+    padding: var(--spacing-sm);
+    box-shadow: 0 2px 5px var(--shadow-color);
+}
+
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+h1, h2 {
+    color: var(--purple-accent); /* Using a lighter purple for headings */
+    margin-bottom: var(--spacing-md);
+}
+
+/* --- Form specific styles --- */
+#task-input form {
+    display: flex;
+    flex-direction: column; /* Stack elements vertically on mobile */
+    gap: var(--spacing-sm); /* Space between form elements */
+    background-color: var(--card-bg);
+    padding: var(--spacing-md);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px var(--shadow-color);
+    margin-bottom: var(--spacing-lg); /* Space below the form */
+}
+
+#task-input input[type="text"] {
+    width: 100%;
+    padding: var(--spacing-xs) var(--spacing-sm); /* Vertical and horizontal padding */
+    border: 1px solid var(--input-border);
+    border-radius: 5px;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+#task-input input[type="text"]:focus {
+    outline: none;
+    border-color: var(--purple-primary); /* Highlight on focus */
+    box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.2); /* Light purple glow */
+}
+
+#task-input button {
+    width: 100%; /* Full width button on mobile */
+    padding: var(--spacing-sm);
+    border-radius: 5px;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+#task-input button:hover {
+    background-color: var(--purple-light);
+    transform: translateY(-1px);
+}
+
+#task-input button:active {
+    transform: translateY(0);
+}
+
+/* --- Footer --- */
+footer {
+    text-align: center;
+    padding: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+    color: var(--text-color);
+    border-top: 1px solid var(--border-color);
+}
+
+/* --- Responsive Adjustments (Desktop) --- */
+@media (min-width: 768px) {
+    .container {
+        max-width: 960px; /* Wider for tablets and desktops */
+        padding: var(--spacing-lg) var(--spacing-xl); /* Wide spaces on sides */
+    }
+
+    header .container {
+        padding: var(--spacing-md) var(--spacing-xl);
+    }
+
+    #task-input form {
+        flex-direction: row; /* Horizontal layout for form elements on desktop */
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+
+    #task-input input[type="text"] {
+        flex-grow: 1; /* Input takes up available space */
+    }
+
+    #task-input button {
+        width: auto; /* Button size adjusts to content */
+        min-width: 120px; /* Minimum width for button */
+    }
 }
