@@ -4,14 +4,49 @@ const taskTextInput = document.getElementById('task-text');
 const tasksContainer = document.getElementById('tasks-container');
 const currentYearSpan = document.getElementById('current-year');
 
+// --- Global Array to store task objects ---
+let tasks = [];
+
 // Set current year in footer
 if (currentYearSpan) {
     currentYearSpan.textContent = new Date().getFullYear();
 }
 
 /**
+ * Saves the current tasks array to localStorage.
+ */
+function saveTasks() {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+    console.log('Tasks saved:', tasks); // For debugging
+}
+
+/**
+ * Loads tasks from localStorage and renders them.
+ */
+function loadTasks() {
+    const storedTasks = localStorage.getItem('tasks');
+    if (storedTasks) {
+        tasks = JSON.parse(storedTasks);
+        console.log('Tasks loaded:', tasks); // For debugging
+        renderTasks(); // Render all loaded tasks
+    }
+}
+
+/**
+ * Renders all tasks from the `tasks` array to the DOM.
+ * Clears existing tasks first.
+ */
+function renderTasks() {
+    tasksContainer.innerHTML = ''; // Clear existing tasks in the DOM
+    tasks.forEach(task => {
+        const taskElement = createTaskElement(task);
+        tasksContainer.appendChild(taskElement); // Append to maintain order
+    });
+}
+
+/**
  * Creates an HTML list item element for a given task.
- * @param {object} task - The task object { id, text, completed: boolean }.
+ * @param {object} task - The task object { id, text, completed: boolean, priority: string }.
  * @returns {HTMLLIElement} The created li element.
  */
 function createTaskElement(task) {
@@ -31,7 +66,7 @@ function createTaskElement(task) {
                 <span class="sr-only">Mark task as complete:</span>
                 ${task.text}
             </label>
-            <span class="task-priority-display" aria-label="Priority: ${task.priority || 'Medium'}">${task.priority ? task.priority.charAt(0).toUpperCase() + task.priority.slice(1) : 'Medium'}</span>
+            <span class="task-priority-display" aria-label="Priority: ${task.priority ? task.priority.charAt(0).toUpperCase() + task.priority.slice(1) : 'Medium'}">${task.priority ? task.priority.charAt(0).toUpperCase() + task.priority.slice(1) : 'Medium'}</span>
         </div>
         <div class="task-actions">
             <button class="edit-btn" aria-label="Edit task: ${task.text}">Edit</button>
@@ -43,7 +78,7 @@ function createTaskElement(task) {
 }
 
 /**
- * Adds a new task to the display.
+ * Adds a new task. Updates the `tasks` array, saves to localStorage, and re-renders.
  * @param {string} taskText - The description of the new task.
  */
 function addTask(taskText) {
@@ -56,11 +91,13 @@ function addTask(taskText) {
         id: Date.now().toString(), // Simple unique ID for now
         text: taskText,
         completed: false,
-        priority: 'medium' // Default priority for now
+        priority: 'medium' // Default priority for now, will be updated later
     };
 
-    const taskElement = createTaskElement(newTask);
-    tasksContainer.prepend(taskElement); // Add new task to the top of the list
+    tasks.unshift(newTask); // Add new task to the beginning of the array
+    saveTasks(); // Save updated tasks array
+    renderTasks(); // Re-render all tasks to display the new one
+
     taskTextInput.value = ''; // Clear the input field
 }
 
@@ -70,7 +107,5 @@ newTaskForm.addEventListener('submit', (event) => {
     addTask(taskTextInput.value);
 });
 
-// --- Initial render for demonstration (optional, can be removed once persistence is added) ---
-// You can remove these two tasks once you implement saving/loading
-addTask('Learn more about JavaScript modules');
-addTask('Refactor code for better readability');
+// --- Initial setup when the script loads ---
+document.addEventListener('DOMContentLoaded', loadTasks);
