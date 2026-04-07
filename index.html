@@ -8,5 +8,53 @@
 </head>
 <body>
    <h1>Task Manager</h1> 
+   <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Task Manager</title>
+    <!-- Link to your CSS files (will be empty for now) -->
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Task Manager</h1>
+            <!-- Theme toggle will be added later -->
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="task-input">
+            <h2>Add New Task</h2>
+            <form aria-labelledby="task-input-heading">
+                <label for="task-text" class="sr-only">Task Description</label>
+                <input type="text" id="task-text" placeholder="What do you need to do?" required aria-required="true">
+                <button type="submit">Add Task</button>
+            </form>
+        </section>
+
+        <!-- Task list will be added later -->
+        <!-- <section id="task-list">
+            <h2>Your Tasks</h2>
+            <ul>
+                
+            </ul>
+        </section> -->
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; <span id="current-year"></span> Task Manager</p>
+        </div>
+    </footer>
+
+    <!-- Link to your JavaScript file (will be empty for now) -->
+    <script src="js/script.js"></script>
+</body>
+</html>
+
 </body>
 </html>
