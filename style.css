@@ -117,6 +117,88 @@ h1, h2 {
     transform: translateY(0);
 }
 
+/* --- Task List Styles --- */
+#task-list ul {
+    list-style: none; /* Remove default list bullets */
+    padding: 0;
+    margin: 0;
+}
+
+.task-item {
+    display: flex;
+    flex-direction: column; /* Stack content and actions vertically on mobile */
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    box-shadow: 0 2px 5px var(--shadow-color);
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, opacity 0.3s ease;
+}
+
+.task-item.completed {
+    opacity: 0.6;
+    text-decoration: line-through;
+    background-color: var(--bg-color); /* Lighter background for completed tasks */
+    border-color: var(--border-color);
+}
+
+.task-content {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm); /* Space between checkbox, label, priority */
+    margin-bottom: var(--spacing-sm); /* Space below content before actions on mobile */
+    flex-grow: 1; /* Allows content to take up space for alignment on larger screens */
+}
+
+.task-checkbox {
+    min-width: 20px; /* Ensure it's clickable */
+    min-height: 20px;
+    accent-color: var(--purple-primary); /* Colors the checkbox itself */
+}
+
+.task-label {
+    flex-grow: 1; /* Label takes up remaining space */
+    cursor: pointer;
+}
+
+.task-priority-display {
+    padding: 0.2em 0.6em;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: bold;
+    color: var(--button-text);
+    background-color: var(--purple-primary); /* Default priority color */
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+/* Specific priority colors (using data-priority attribute for now) */
+.task-item[data-priority="high"] .task-priority-display { background-color: #dc3545; } /* Red */
+.task-item[data-priority="medium"] .task-priority-display { background-color: #ffc107; color: #333; } /* Yellow */
+.task-item[data-priority="low"] .task-priority-display { background-color: #28a745; } /* Green */
+
+
+.task-actions {
+    display: flex;
+    justify-content: flex-end; /* Push action buttons to the right */
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm); /* Space above actions on mobile */
+}
+
+.task-actions button {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.9em;
+    /* Reset button specific styles inherited from #task-input button */
+    width: auto;
+    background-color: var(--purple-primary); /* Default for task action buttons */
+    color: var(--button-text);
+}
+
+.edit-btn { background-color: var(--purple-accent); color: var(--text-color); }
+.edit-btn:hover { background-color: var(--purple-light); }
+.delete-btn { background-color: #dc3545; } /* Red for delete */
+.delete-btn:hover { background-color: #c82333; }
+
 /* --- Footer --- */
 footer {
     text-align: center;
@@ -150,5 +232,21 @@ footer {
     #task-input button {
         width: auto; /* Button size adjusts to content */
         min-width: 120px; /* Minimum width for button */
+    }
+
+    /* Task list responsiveness */
+    .task-item {
+        flex-direction: row; /* Horizontal layout for task items on desktop */
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .task-content {
+        margin-bottom: 0; /* No vertical margin needed for content */
+    }
+
+    .task-actions {
+        margin-top: 0; /* No vertical margin needed for actions */
+        margin-left: var(--spacing-md); /* Space between content and actions */
     }
 }
