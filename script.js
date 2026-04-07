@@ -101,11 +101,43 @@ function addTask(taskText) {
     taskTextInput.value = ''; // Clear the input field
 }
 
+/**
+ * Deletes a task from the `tasks` array and updates the display.
+ * @param {string} taskId - The ID of the task to delete.
+ */
+function deleteTask(taskId) {
+    // Filter out the task with the matching ID
+    tasks = tasks.filter(task => task.id !== taskId);
+    saveTasks(); // Save the updated array to localStorage
+    renderTasks(); // Re-render the tasks to update the DOM
+}
+
+
 // Event listener for form submission
 newTaskForm.addEventListener('submit', (event) => {
     event.preventDefault(); // Prevent default form submission and page reload
     addTask(taskTextInput.value);
 });
+
+// --- Event Delegation for Task Actions (Delete, Edit, Checkbox) ---
+tasksContainer.addEventListener('click', (event) => {
+    const target = event.target;
+    const taskItem = target.closest('.task-item'); // Find the closest parent task-item
+
+    if (!taskItem) return; // If clicked element is not inside a task item, do nothing
+
+    const taskId = taskItem.dataset.id; // Get the ID from the task item's data-id attribute
+
+    // Handle Delete button click
+    if (target.classList.contains('delete-btn')) {
+        if (confirm('Are you sure you want to delete this task?')) {
+            deleteTask(taskId);
+        }
+    }
+
+    // Other actions (edit, checkbox) will be added here later
+});
+
 
 // --- Initial setup when the script loads ---
 document.addEventListener('DOMContentLoaded', loadTasks);
