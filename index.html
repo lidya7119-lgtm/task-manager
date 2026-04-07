@@ -19,50 +19,19 @@
     <main class="container">
         <section id="task-input">
             <h2>Add New Task</h2>
-            <form aria-labelledby="task-input-heading">
+            <form id="new-task-form" aria-labelledby="task-input-heading">
                 <label for="task-text" class="sr-only">Task Description</label>
                 <input type="text" id="task-text" placeholder="What do you need to do?" required aria-required="true">
                 <button type="submit">Add Task</button>
             </form>
         </section>
 
-        <!-- NEW / UNCOMMENTED SECTION FOR TASK LIST -->
         <section id="task-list">
             <h2>Your Tasks</h2>
-            <ul aria-live="polite" aria-atomic="true">
+            <ul id="tasks-container" aria-live="polite" aria-atomic="true">
                 <!-- Task items will be dynamically added here by JavaScript -->
-                <!-- Example of a static task item for initial styling purposes (can be removed later) -->
-                <li class="task-item" data-id="1" data-priority="medium">
-                    <div class="task-content">
-                        <input type="checkbox" id="task-1-checkbox" class="task-checkbox">
-                        <label for="task-1-checkbox" class="task-label">
-                            <span class="sr-only">Mark task as complete:</span>
-                            Write some tasks
-                        </label>
-                        <span class="task-priority-display" aria-label="Priority: Medium">Medium</span>
-                    </div>
-                    <div class="task-actions">
-                        <button class="edit-btn" aria-label="Edit task: Write some tasks">Edit</button>
-                        <button class="delete-btn" aria-label="Delete task: Write some tasks">Delete</button>
-                    </div>
-                </li>
-                 <li class="task-item completed" data-id="2" data-priority="high">
-                    <div class="task-content">
-                        <input type="checkbox" id="task-2-checkbox" class="task-checkbox" checked>
-                        <label for="task-2-checkbox" class="task-label">
-                            <span class="sr-only">Mark task as complete:</span>
-                            Buy groceries
-                        </label>
-                        <span class="task-priority-display" aria-label="Priority: High">High</span>
-                    </div>
-                    <div class="task-actions">
-                        <button class="edit-btn" aria-label="Edit task: Buy groceries">Edit</button>
-                        <button class="delete-btn" aria-label="Delete task: Buy groceries">Delete</button>
-                    </div>
-                </li>
             </ul>
         </section>
-        <!---------------------------------------------->
 
     </main>
 
@@ -72,7 +41,7 @@
         </div>
     </footer>
 
-    <!-- Link to your JavaScript file (will be empty for now) -->
-    <script src="js/script.js"></script>
+    <!-- Link to your JavaScript file -->
+    <script src="script.js"></script>
 </body>
 </html>
